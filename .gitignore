@@ -1,0 +1,7 @@
+node_modules
+.git0
+logs
+.vscode
+dist
+Data
+TEST

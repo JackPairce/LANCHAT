@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Connexion</title>
+  </head>
+  <body>
+    <!-- ! Need more work -->
+    <audio
+      src="../Data/Audio/Free_Test_Data_1OMB_MP3.mp3"
+      id="audio"
+      controls
+    ></audio>
+    <button onclick="startAudio()">Start Audio</button>
+    <canvas id="canvas" style="height: 100%; width: 100%"></canvas>
+    <!-- <div class="audio-player">
+      <audio src="../Data/Audio/Free_Test_Data_1OMB_MP3.mp3" id="audio"></audio>
+      <div class="player-controls">
+        <div class="playpause-container">
+          <button id="playpause" class="play"></button>
+        </div>
+        <div class="timeline-container">
+          <div id="timeline" class="timeline">
+            <canvas id="canvas" class="audio-waves"></canvas>
+            <div id="progress" class="progress"></div>
+          </div>
+        </div>
+      </div>
+    </div> -->
+
+    <script>
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+
+      // Set canvas size
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      // Create circle visualization
+      const radius = Math.min(canvas.width, canvas.height) / 2 - 20;
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const maxRadius = 200;
+
+      function drawCircle(percent) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 10;
+        ctx.stroke();
+
+        ctx.beginPath();
+        const currentRadius = radius + (maxRadius - radius) * percent;
+        ctx.arc(centerX, centerY, currentRadius, 0, Math.PI * 2);
+        ctx.fillStyle = "#000";
+        ctx.fill();
+      }
+
+      // Animate circle based on audio data
+      function animate(analyzer) {
+        requestAnimationFrame(() => animate(analyzer));
+        const bufferLength = analyzer.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        analyzer.getByteFrequencyData(dataArray);
+        const percent = Math.max(...dataArray) / 255;
+        drawCircle(percent);
+      }
+
+      function startAudio() {
+        const audioCtx = new (window.AudioContext ||
+          window.webkitAudioContext)();
+        const analyzer = audioCtx.createAnalyser();
+        analyzer.fftSize = 2048;
+
+        navigator.mediaDevices
+          .getUserMedia({ audio: true })
+          .then((stream) => {
+            const source = audioCtx.createMediaStreamSource(stream);
+            source.connect(analyzer);
+            analyzer.connect(audioCtx.destination);
+            return stream;
+          })
+          .then((stream) => {
+            const audio = new Audio();
+            audio.srcObject = stream;
+            audio.play();
+            animate(analyzer);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      }
+    </script>
+
+    <!-- <style>
+      /* CSS code */
+      canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        translate: 0px -60px;
+        z-index: 3;
+      }
+      .audio-player {
+        position: relative;
+        width: 100%;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px;
+      }
+
+      .player-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-grow: 1;
+        margin: 0 8px;
+      }
+
+      .playpause-container {
+        width: 24px;
+        height: 24px;
+        margin-right: 8px;
+      }
+
+      #playpause {
+        position: absolute;
+        /* z-index: 99; */
+        /* translate: 50px; */
+        transition: 0.5s;
+      }
+
+      .play {
+        width: 0;
+        height: 0;
+        background-color: #fff;
+        border-top: 12px solid #fff;
+        border-bottom: 12px solid #fff;
+        border-right: 12px solid #fff;
+        border-left: 18px solid #000000;
+      }
+
+      .pause {
+        width: 18px;
+        height: 24px;
+        border: 0px solid transparent;
+        background-color: #000000;
+      }
+
+      .timeline-container {
+        width: 100%;
+      }
+
+      .timeline {
+        width: 100%;
+        height: 70px;
+        background-color: #4d4d4d;
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .progress {
+        width: 0%;
+        height: 70px;
+        background-color: #1877f2;
+        position: absolute;
+        top: 0;
+        left: 0;
+        transition: 0.399s;
+      }
+
+      .audio-waves {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        height: 50px;
+        background-color: transparent;
+      }
+    </style>
+    <script>
+      const filePath = document.getElementById("audio").src;
+      // const filePath = "../Data/Audio/file_example_MP3_700KB.mp3";
+      fetch(filePath)
+        .then((response) => response.arrayBuffer())
+        .then((arrayBuffer) => {
+          const audioContext = new AudioContext();
+          return audioContext.decodeAudioData(arrayBuffer);
+        })
+        .then((audioBuffer) => {
+          console.log(audioBuffer);
+          draw(normalizeData(filterData(audioBuffer)));
+        })
+        .catch((error) => console.log(error));
+
+      // Set up audio context
+      window.AudioContext = window.AudioContext || window.webkitAudioContext;
+      const audioContext = new AudioContext();
+
+      /**
+       * Retrieves audio from an external source, the initializes the drawing function
+       * @param {String} url the url of the audio we'd like to fetch
+       */
+      const drawAudio = (file) => {
+        const fileReader = new FileReader();
+        fileReader.readAsArrayBuffer(file);
+        fileReader.onload = () => {
+          audioContext
+            .decodeAudioData(fileReader.result)
+            .then((audioBuffer) => {
+              console.log(audioBuffer);
+              draw(normalizeData(filterData(audioBuffer)));
+            });
+        };
+      };
+
+      /**
+       * Filters the AudioBuffer retrieved from an external source
+       * @param {AudioBuffer} audioBuffer the AudioBuffer from drawAudio()
+       * @returns {Array} an array of floating point numbers
+       */
+      const filterData = (audioBuffer) => {
+        const rawData = audioBuffer.getChannelData(0); // We only need to work with one channel of data
+        const samples = 70; // Number of samples we want to have in our final data set
+        const blockSize = Math.floor(rawData.length / samples); // the number of samples in each subdivision
+        const filteredData = [];
+        for (let i = 0; i < samples; i++) {
+          let blockStart = blockSize * i; // the location of the first sample in the block
+          let sum = 0;
+          for (let j = 0; j < blockSize; j++) {
+            sum = sum + Math.abs(rawData[blockStart + j]); // find the sum of all the samples in the block
+          }
+          filteredData.push(sum / blockSize); // divide the sum by the block size to get the average
+        }
+        return filteredData;
+      };
+
+      /**
+       * Normalizes the audio data to make a cleaner illustration
+       * @param {Array} filteredData the data from filterData()
+       * @returns {Array} an normalized array of floating point numbers
+       */
+      const normalizeData = (filteredData) => {
+        const multiplier = Math.pow(Math.max(...filteredData), -1);
+        return filteredData.map((n) => n * multiplier);
+      };
+
+      /**
+       * Draws the audio file into a canvas element.
+       * @param {Array} normalizedData The filtered array returned from filterData()
+       * @returns {Array} a normalized array of data
+       */
+      const draw = (normalizedData) => {
+        // set up the canvas
+        const canvas = document.querySelector("canvas");
+        const dpr = window.devicePixelRatio || 1;
+        const padding = 0;
+        canvas.width = canvas.offsetWidth * dpr;
+        canvas.height = (canvas.offsetHeight + padding * 0) * dpr;
+        const ctx = canvas.getContext("2d");
+        ctx.scale(dpr, dpr);
+        ctx.translate(0, canvas.offsetHeight / 2 + padding); // set Y = 0 to be in the middle of the canvas
+
+        // draw the bars
+        const width = canvas.offsetWidth / normalizedData.length;
+        for (let i = 0; i < normalizedData.length; i++) {
+          const x = (width - 0.1) * i;
+          const height = normalizedData[i] * canvas.offsetHeight - padding;
+          drawBar(ctx, x, height, width, (i + 1) % 2);
+        }
+      };
+      /**
+       * A utility function for drawing our bars
+       * @param {AudioContext} ctx the audio context
+       * @param {number} x  the x coordinate of the beginning of the bar
+       * @param {number} height the desired height of the bar
+       * @param {number} width the desired width of the bar
+       */
+      const drawBar = (ctx, x, height, width) => {
+        barWidth = 5;
+        barSpacing = 5;
+        x += barSpacing;
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(x, -height / 2, barWidth, height);
+        ctx.fillRect(x, height / 2, barWidth, -height);
+      };
+
+      //   drawAudio(
+      //     "https://s3-us-west-2.amazonaws.com/s.cdpn.io/3/shoptalk-clip.mp3"
+      //   );
+    </script>
+    <script>
+      // JavaScript code
+      const audio = document.getElementById("audio");
+      const canvas = document.getElementById("canvas");
+      const playpause = document.getElementById("playpause");
+      const progress = document.getElementById("progress");
+      const timeline = document.getElementById("timeline");
+
+      const context = new AudioContext();
+      const src = context.createMediaElementSource(audio);
+      const analyser = context.createAnalyser();
+
+      // Connect the AudioContext to the media element source
+      src.connect(analyser);
+      analyser.connect(context.destination);
+
+      // Set the canvas dimensions
+      canvas.width = window.innerWidth;
+      canvas.height = 120;
+
+      const canvasCtx = canvas.getContext("2d");
+
+      // Set up the progress bar and seek bar
+      playpause.addEventListener("click", function () {
+        if (audio.paused) {
+          audio.play();
+          playpause.classList.remove("play");
+          playpause.classList.add("pause");
+        } else {
+          audio.pause();
+          playpause.classList.remove("pause");
+          playpause.classList.add("play");
+        }
+      });
+
+      timeline.addEventListener("click", function (e) {
+        const timelineWidth = timeline.offsetWidth;
+        const clickX = e.pageX - timeline.offsetLeft;
+        const duration = audio.duration;
+
+        audio.currentTime = (clickX / timelineWidth) * duration;
+      });
+
+      // Render the audio waves onto the canvas
+      function renderFrame() {
+        requestAnimationFrame(renderFrame);
+
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteFrequencyData(dataArray);
+        if (!audio.paused || audio.ended) {
+          canvasCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+          if (audio.ended) {
+            playpause.classList.remove("pause");
+            playpause.classList.add("play");
+          }
+        }
+        const barWidth = (canvasWidth / dataArray.length) * 10;
+        let barHeight;
+
+        for (let i = 0; i < dataArray.length; i++) {
+          barHeight = dataArray[i] / 2;
+          const x = i * (barWidth + 15);
+          const y = canvasHeight / 2 + barHeight / 2;
+          canvasCtx.fillRect(x, y, barWidth, -barHeight);
+        }
+
+        const currentTime = audio.currentTime;
+        const duration = audio.duration;
+        const progressWidth = (currentTime / duration) * 100;
+        progress.style.width = `${progressWidth}%`;
+      }
+
+      audio.addEventListener("timeupdate", () => {
+        const currentTime = audio.currentTime;
+        const duration = audio.duration;
+        const progressWidth = (currentTime / duration) * 100;
+        requestAnimationFrame(() => {
+          progress.style.width = `${progressWidth}%`;
+        });
+      });
+      function renderFrame() {
+        requestAnimationFrame(renderFrame);
+
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteFrequencyData(dataArray);
+
+        const barWidth = (canvasWidth / dataArray.length) * 2;
+        let barHeight;
+        const gap = 2; // Add a gap between bars
+
+        canvasCtx.clearRect(0, 0, canvasWidth, canvasHeight); // Clear the canvas
+
+        for (let i = 0; i < dataArray.length; i++) {
+          barHeight = dataArray[i] / 2;
+          const x = i * (barWidth + gap);
+          const y = canvasHeight - barHeight;
+          const color = `rgb(${barHeight + 100}, ${barHeight + 100}, ${
+            barHeight + 100
+          })`;
+
+          canvasCtx.fillStyle = color;
+          canvasCtx.fillRect(x, y, barWidth, barHeight);
+        }
+
+        const currentTime = audio.currentTime;
+        const duration = audio.duration;
+        const progressWidth = (currentTime / duration) * 100;
+        progress.style.width = `${progressWidth}%`;
+      }
+
+      //   renderFrame();
+    </script> -->
+
+    <!-- ? worked code -->
+    <!-- <audio id="myAudio" controls>
+      <source
+        src="../Data/Audio/file_example_MP3_700KB.mp3"
+        type="audio/mpeg"
+      />
+    </audio>
+    
+    <canvas id="canvas"></canvas>
+    <script>
+      const audio = document.getElementById("myAudio");
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      const audioCtx = new AudioContext();
+      const source = audioCtx.createMediaElementSource(audio);
+      const analyser = audioCtx.createAnalyser();
+      source.connect(analyser);
+      analyser.connect(audioCtx.destination);
+
+      analyser.fftSize = 2048;
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+
+      const WIDTH = canvas.width;
+      const HEIGHT = canvas.height;
+      const BAR_WIDTH = 2;
+      const BAR_GAP = 2;
+      const BAR_COLOR = "#4b4f56";
+      const LINE_COLOR = "#c8ccd0";
+      const LINE_WIDTH = 2;
+      const LINE_OFFSET = 10;
+
+      let time = 0;
+      let isDragging = false;
+
+      function draw() {
+        requestAnimationFrame(draw);
+
+        analyser.getByteFrequencyData(dataArray);
+
+        ctx.fillStyle = "rgb(255, 255, 255)";
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+        // Draw time line
+        const currentTime = audio.currentTime;
+        const duration = audio.duration;
+        const timeRatio = currentTime / duration;
+        const timePosition =
+          LINE_OFFSET + (WIDTH - 2 * LINE_OFFSET) * timeRatio;
+
+        ctx.beginPath();
+        ctx.strokeStyle = LINE_COLOR;
+        ctx.lineWidth = LINE_WIDTH;
+        ctx.setLineDash([5, 5]);
+        ctx.moveTo(LINE_OFFSET, HEIGHT / 2);
+        ctx.lineTo(WIDTH - LINE_OFFSET, HEIGHT / 2);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.strokeStyle = LINE_COLOR;
+        ctx.lineWidth = LINE_WIDTH;
+        ctx.setLineDash([]);
+        ctx.moveTo(timePosition, HEIGHT / 2);
+        ctx.lineTo(timePosition, 0);
+        ctx.stroke();
+
+        if (!isDragging) {
+          time = timePosition - LINE_OFFSET;
+        }
+
+        for (let i = 0; i < bufferLength; i++) {
+          const barHeight = ((dataArray[i] / 255) * HEIGHT) / 2;
+          const x = i * (BAR_WIDTH + BAR_GAP);
+          const y = HEIGHT / 2 - barHeight / 2;
+
+          ctx.fillStyle = BAR_COLOR;
+          ctx.fillRect(x, y, BAR_WIDTH, barHeight);
+        }
+      }
+
+      draw();
+
+      canvas.addEventListener("mousedown", (e) => {
+        isDragging = true;
+      });
+
+      canvas.addEventListener("mouseup", (e) => {
+        isDragging = false;
+      });
+
+      canvas.addEventListener("mousemove", (e) => {
+        if (isDragging) {
+          const rect = canvas.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const timeRatio = (x - LINE_OFFSET) / (WIDTH - 2 * LINE_OFFSET);
+          const newTime = timeRatio * audio.duration;
+          audio.currentTime = newTime;
+        }
+      });
+    </script> -->
+  </body>
+</html>

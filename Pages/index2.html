@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Create Google Sheet and Share</title>
+  </head>
+  <body>
+      <div>
+        <h1>Create a New Google Sheet and Share</h1>
+        <ol>
+          <li>
+            Go to the
+            <a
+              href="https://console.cloud.google.com/"
+              >Google Cloud Console</a
+            >.
+          </li>
+          <li>Create a new project or select an existing project.</li>
+          <li>
+            Enable the "Google Sheets API" for your project:
+            <ul>
+              <li>Click on the menu icon (☰) in the upper-left corner.</li>
+              <li>Navigate to "APIs &amp; Services" -> "Library".</li>
+              <li>Search for "Google Sheets API" and select it.</li>
+              <li>Click on the "Enable" button.</li>
+            </ul>
+          </li>
+          <li>
+            Create service account credentials:
+            <ul>
+              <li>
+                In the left sidebar, go to "APIs &amp; Services" ->
+                "Credentials".
+              </li>
+              <li>
+                Click on the "Create credentials" button and select "Service
+                account".
+              </li>
+              <li>
+                Fill in the necessary information (e.g., service account name,
+                description).
+              </li>
+              <li>Click on the "Create" button.</li>
+              <li>
+                On the "Service account permissions" page, assign the required
+                permissions (e.g., "Editor" access to the Google Sheet).
+              </li>
+              <li>Click on the "Continue" button.</li>
+              <li>On the "Create key" page, select "JSON" as the key type.</li>
+              <li>
+                Click on the "Create" button to download the JSON file
+                containing the credentials.
+              </li>
+            </ul>
+          </li>
+          <li>
+            Obtain the <code>spreadsheetId</code>:
+            <ul>
+              <li>Create a new Google Sheet in your Google Drive.</li>
+              <li>
+                Open the sheet and extract the <code>spreadsheetId</code> from
+                the URL. It is the alphanumeric string between
+                <code>/d/</code> and <code>/edit</code> in the URL.
+              </li>
+            </ul>
+          </li>
+          <li>
+            Share the Google Sheet with the <code>client_email</code>:
+            <ul>
+              <li>Open the Google Sheet.</li>
+              <li>Click on the "Share" button in the top-right corner.</li>
+              <li>
+                Enter the <code>client_email</code> (e.g.,
+                "account-verification*******************gserviceaccount.com")
+                in the "People" field.
+              </li>
+              <li>
+                Assign the appropriate access level (e.g., "Editor", "Viewer")
+                to the client email.
+              </li>
+              <li>Click on the "Send" button.</li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+  </body>
+</html>
+</script>

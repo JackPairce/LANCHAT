@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../css/Connexion.css" />
+    <title>Login</title>
+  </head>
+  <body>
+    <button id="exit">X</button><button id="mini">_</button>
+    <dialog class="">
+      <p>
+        <span>i</span>
+        Nous détectons un fichier manquant dans votre système, veuillez
+        contacter votre administrateur.
+      </p>
+      <div id="text" class="">
+        <ol>
+          <li>
+            Go to the
+            <a href="https://console.cloud.google.com/">Google Cloud Console</a
+            >.
+          </li>
+          <li>Create a new project or select an existing project.</li>
+          <li>
+            Enable the "Google Sheets API" for your project:
+            <ul>
+              <li>Click on the menu icon (☰) in the upper-left corner.</li>
+              <li>Navigate to "APIs &amp; Services" -> "Library".</li>
+              <li>Search for "Google Sheets API" and select it.</li>
+              <li>Click on the "Enable" button.</li>
+            </ul>
+          </li>
+          <li>
+            Create service account credentials:
+            <ul>
+              <li>
+                In the left sidebar, go to "APIs &amp; Services" ->
+                "Credentials".
+              </li>
+              <li>
+                Click on the "Create credentials" button and select "Service
+                account".
+              </li>
+              <li>
+                Fill in the necessary information (e.g., service account name,
+                description).
+              </li>
+              <li>Click on the "Create" button.</li>
+              <li>
+                On the "Service account permissions" page, assign the required
+                permissions (e.g., "Editor" access to the Google Sheet).
+              </li>
+              <li>Click on the "Continue" button.</li>
+              <li>On the "Create key" page, select "JSON" as the key type.</li>
+              <li>
+                Click on the "Create" button to download the JSON file
+                containing the credentials.
+              </li>
+            </ul>
+          </li>
+          <li>
+            Obtain the <code>spreadsheetId</code>:
+            <ul>
+              <li>Create a new Google Sheet in your Google Drive.</li>
+              <li>
+                Open the sheet and extract the <code>spreadsheetId</code> from
+                the URL. It is the alphanumeric string between
+                <code>/d/</code> and <code>/edit</code> in the URL.
+              </li>
+            </ul>
+          </li>
+          <li>
+            Share the Google Sheet with the <code>client_email</code>:
+            <ul>
+              <li>Open the Google Sheet.</li>
+              <li>Click on the "Share" button in the top-right corner.</li>
+              <li>
+                Enter the <code>client_email</code> (e.g.,
+                "account-verification*******************gserviceaccount.com") in
+                the "People" field.
+              </li>
+              <li>
+                Assign the appropriate access level (e.g., "Editor", "Viewer")
+                to the client email.
+              </li>
+              <li>Click on the "Send" button.</li>
+            </ul>
+          </li>
+        </ol>
+      </div class="text">
+      <form>
+        <input type="text" style="display: none" />
+      </form>
+      <div>
+        <button name="file">Entrer le Ficher</button>
+        <button name="check" style="display: none">
+          Valider
+          <div></div>
+        </button>
+        <button name="send">Envoyer un Demande au administrateur</button>
+        <button name="false">Annuller</button>
+      </div>
+    </dialog>
+    <div id="d1">
+      <h1>Connexion</h1>
+      <form method="post" id="Connexion">
+        <div class="text_field">
+          <input id="user" type="email" required />
+          <label>Email</label>
+          <span></span>
+        </div>
+        <div class="text_field">
+          <input id="pass" type="password" required />
+          <label>Mot De Passe</label>
+          <span></span>
+          <svg
+            width="25"
+            height="25"
+            fill="currentColor"
+            class=""
+            viewBox="0 0 16 16"
+            id="IconChangeColor"
+          >
+            <path
+              d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"
+              id="mainIconPathAttribute"
+              fill="#000000"
+            ></path>
+            <path
+              d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"
+              id="mainIconPathAttribute"
+              fill="#000000"
+            ></path>
+          </svg>
+        </div>
+        <a id="forget">Mot De Passe Oubliée ?</a>
+        <div id="errConnection"></div>
+        <div class="btn">
+          <input id="submit" type="submit" value="Se Connecter" />
+          <button id="logup" type="button">S'inscrire</button>
+        </div>
+      </form>
+    </div>
+    <div id="d2">
+      <div class="bg">
+        <label class="container" style="pointer-events: none">
+          <input type="checkbox" disabled />
+          <div class="checkmark"></div>
+        </label>
+        <div id="notfound"></div>
+        <div class="loader">
+          <span></span>
+        </div>
+        <h1 style="user-select: none">Recherche...</h1>
+        <button id="loadingexit" onclick="Default()" style="visibility: hidden">
+          OK
+        </button>
+      </div>
+      <h1>Creation Du Compte</h1>
+      <form method="post" id="Creation">
+        <div class="text_field">
+          <input id="Puser" type="text" name="Name" required />
+          <label>Prénom</label>
+          <span></span>
+        </div>
+        <div class="text_field">
+          <input id="Nuser" type="text" name="FamilyName" required />
+          <label>Nom</label>
+          <span></span>
+        </div>
+        <div class="text_field">
+          <input id="Buser" type="number" name="Bureau" required />
+          <label>N° Bureau</label>
+          <span></span>
+        </div>
+        <div class="text_field">
+          <input id="Euser" type="email" name="Email" required />
+          <label>Email</label>
+          <span></span>
+        </div>
+        <label class="toggleadmin">
+          <input type="checkbox" name="admin" />
+          <div class="admincheckmark"></div>
+          <p>Je suis l'administrateur</p>
+        </label>
+        <div id="errCreation"></div>
+        <div class="btn">
+          <input id="submit" type="submit" value="S'inscrire" />
+          <button id="login" type="reset">Se Connecter</button>
+        </div>
+      </form>
+    </div>
+    <div id="d3">
+      <h1>Verification Du Email</h1>
+      <form method="post" id="Recuperation">
+        <div>
+          Entrez voter email de Recuperation :
+          <div class="text_field">
+            <input id="Ruser" type="email" required />
+            <label>Email</label>
+            <span></span>
+          </div>
+        </div>
+        <div id="code">
+          <div>
+            <p class="text">Entrez le code que vous avez reçu :</p>
+            <input
+              type="number"
+              id=""
+              class="input"
+              maxlength="1"
+              oninput="valideInput(this)"
+            />
+            <input
+              type="number"
+              id=""
+              class="input"
+              maxlength="1"
+              oninput="valideInput(this)"
+            />
+            <input
+              type="number"
+              id=""
+              class="input"
+              maxlength="1"
+              oninput="valideInput(this)"
+            />
+            <input
+              type="number"
+              id=""
+              class="input"
+              maxlength="1"
+              oninput="valideInput(this)"
+            />
+          </div>
+        </div>
+        <div id="errRecuperation"></div>
+        <div class="btn">
+          <input type="submit" value="Confirmer" />
+          <input type="reset" value="Retour" onclick="ReturnFromConfirm()" />
+        </div>
+      </form>
+    </div>
+    <div id="d4">
+      <h1>Configuration Du Mot de Passe</h1>
+      <form method="post" id="Configuration">
+        <div id="RPW">
+          <div class="text_field">
+            <input id="pass" type="password" required />
+            <label>Mot De Passe</label>
+            <span></span>
+            <svg
+              width="25"
+              height="25"
+              fill="currentColor"
+              class=""
+              viewBox="0 0 16 16"
+              id="IconChangeColor"
+            >
+              <path
+                d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"
+                id="mainIconPathAttribute"
+                fill="#000000"
+              ></path>
+              <path
+                d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"
+                id="mainIconPathAttribute"
+                fill="#000000"
+              ></path>
+            </svg>
+          </div>
+          <div class="text_field">
+            <input id="Cpass" type="password" required />
+            <label>Confirmer Le Mot De Passe</label>
+            <span></span>
+            <svg
+              width="25"
+              height="25"
+              fill="currentColor"
+              class=""
+              viewBox="0 0 16 16"
+              id="IconChangeColor"
+            >
+              <path
+                d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"
+                id="mainIconPathAttribute"
+                fill="#000000"
+              ></path>
+              <path
+                d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"
+                id="mainIconPathAttribute"
+                fill="#000000"
+              ></path>
+            </svg>
+          </div>
+        </div>
+        <div id="err"></div>
+        <div class="btn">
+          <input id="submit" type="submit" value="Confirmer" />
+          <a href="#d1"
+            ><button onclick="ReturnFromReconfig()" type="button">
+              Annuller
+            </button></a
+          >
+        </div>
+      </form>
+    </div>
+    <script src="../Javascript/Connexion.js"></script>
+  </body>
+</html>
